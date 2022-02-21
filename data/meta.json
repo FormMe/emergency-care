@@ -1,0 +1,22 @@
+{
+    "pet_help": {
+        "cat": {
+            "name": "Кошка",
+            "problems": {
+                "bite": {
+                    "title": "Покусали",
+                    "text": "bite.txt"
+                }
+            }
+        },
+        "dog": {
+            "name": "Собака",
+            "problems": {
+                "bite": {
+                    "title": "Покусали",
+                    "text": "bite.txt"
+                }
+            }
+        }
+    }
+}
