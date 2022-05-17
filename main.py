@@ -1,4 +1,5 @@
 import json
+from string import Template
 
 import telebot
 from telebot import apihelper, types
@@ -29,34 +30,32 @@ def set_session(bot_instance, message):
 
 @bot.message_handler(commands=["start"])
 def welcome(message):
-    print(bot.session)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("Критическая ситуация")
-    item2 = types.KeyboardButton("Дополнительная информация")
-    markup.add(item1, item2)
-    bot.send_message(message.chat.id, "Добро пожаловать. выберите действие", reply_markup=markup)
+    markup.add(types.KeyboardButton("Критическая ситуация 🆘"))
+    markup.add(types.KeyboardButton("Подписаться на рассылку"))
+    name = message.from_user.first_name
+    msg = Template(messages.commands['greeting']).safe_substitute(name=name)
+    bot.send_message(message.chat.id, msg, reply_markup=markup)
 
 
 @bot.message_handler(content_types=["text"])
 def ask_problem(message):
-    print(bot.session)
     if message.chat.type == "private":
-        if message.text == "Критическая ситуация":
+        if message.text == "Критическая ситуация 🆘":
             markup = types.InlineKeyboardMarkup()
             for pet_id, pet_emergency in messages.emergency.items():
                 item = types.InlineKeyboardButton(text=pet_emergency.name, callback_data=pet_emergency.id)
                 markup.add(item)
-            bot.send_message(message.chat.id, "Какое у вас животное?", reply_markup=markup)
+            bot.send_message(message.chat.id, messages.commands['pet_select'], reply_markup=markup)
 
-        if message.text == "Дополнительная информация":
-            bot.send_message(message.chat.id, "Что вы хотите узнать?")
+        if message.text == "Подписаться на рассылку":
+            bot.send_message(message.chat.id, "Подписка в разработке")
 
 def match_pet_query(pet_query):
     return pet_query.data in messages.emergency
 
 @bot.callback_query_handler(func=match_pet_query)
 def select_pet(pet_query):
-    print(bot.session)
     bot.session["pet"] = pet_query.data
     markup = types.InlineKeyboardMarkup()
     pet_id = bot.session["pet"]
@@ -64,7 +63,7 @@ def select_pet(pet_query):
         item = types.InlineKeyboardButton(text=problem.title, callback_data=problem.id)
         markup.add(item)
     pet_name = bot.session['pet']
-    bot.send_message(pet_query.message.chat.id, f"хорошо. у вас {pet_name}. Что случилось?", reply_markup=markup)
+    bot.send_message(pet_query.message.chat.id, messages.commands['emergency_select'], reply_markup=markup)
 
 
 def match_problem_query(problem_query):
@@ -75,7 +74,6 @@ def match_problem_query(problem_query):
 
 @bot.callback_query_handler(func=match_problem_query)
 def select_problem(query):
-    print(bot.session)
     bot.session["problem"] = query.data
     selected_pet = bot.session["pet"]
     selected_problem = bot.session["problem"]

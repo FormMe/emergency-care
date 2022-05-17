@@ -1,7 +1,7 @@
 {
     "emergency": {
         "cat": {
-            "name": "Кошка",
+            "name": "Кошка 🐱",
             "problems": {
                 "bite": {
                     "title": "Покусали",
@@ -10,7 +10,7 @@
             }
         },
         "dog": {
-            "name": "Собака",
+            "name": "Собака 🐶",
             "problems": {
                 "bite": {
                     "title": "Покусали",
@@ -20,6 +20,8 @@
         }
     },
     "commands": {
-        "greeting": "greeting.txt"
+        "greeting": "greeting.txt",
+        "emergency_select": "emergency_select.txt",
+        "pet_select": "pet_select.txt"
     }
 }
