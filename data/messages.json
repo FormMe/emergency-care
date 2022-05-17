@@ -1,11 +1,11 @@
 {
-    "pet_help": {
+    "emergency": {
         "cat": {
             "name": "Кошка",
             "problems": {
                 "bite": {
                     "title": "Покусали",
-                    "text": "bite.txt"
+                    "msg": "bite.txt"
                 }
             }
         },
@@ -14,9 +14,12 @@
             "problems": {
                 "bite": {
                     "title": "Покусали",
-                    "text": "bite.txt"
+                    "msg": "bite.txt"
                 }
             }
         }
+    },
+    "commands": {
+        "greeting": "greeting.txt"
     }
 }
