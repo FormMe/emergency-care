@@ -25,7 +25,7 @@ def get_or_create_session(user_id):
         return sessions[user_id]
 
 
-@bot.middleware_handler(update_types=["message"])
+@bot.middleware_handler(update_types=["message", "callback_query"])
 def set_session(bot_instance, message):
     bot_instance.session = get_or_create_session(message.from_user.id)
 
@@ -71,6 +71,8 @@ def select_pet(pet_query):
 def match_problem_query(problem_query):
     pet_name = bot.session.get("pet")
     if pet_name is None:
+        error_msg = 'Сначала выберите какой у вас питомец. Выберите "Критическая ситуация 🆘" в меню и следуйте инструкциям'
+        bot.send_message(problem_query.message.chat.id, error_msg)
         return False
     match_problem = problem_query.data in messages.emergency[pet_name].problems
     return match_problem
@@ -78,7 +80,7 @@ def match_problem_query(problem_query):
 @bot.callback_query_handler(func=match_problem_query)
 def select_problem(problem_query):
     bot.session["problem"] = problem_query.data
-    selected_pet = bot.session["pet"]
+    selected_pet = bot.session.get("pet")
     selected_problem = bot.session["problem"]
     problem = messages.emergency[selected_pet][selected_problem]
     if problem is not None:
@@ -94,14 +96,7 @@ def select_problem(problem_query):
 
 
 def match_vet_query(vet_query):
-    pet_name = bot.session.get("pet")
-    if pet_name is None:
-        return False
-    problem = bot.session.get("problem")
-    if problem is None:
-        return False
-    list_districts = vet_query.data == "select_vet"
-    return list_districts
+    return vet_query.data == "select_vet"
 
 @bot.callback_query_handler(func=match_vet_query)
 def select_vet(vet_query):
@@ -114,26 +109,17 @@ def select_vet(vet_query):
 
 
 def match_disctrict_query(disctrict_query):
-    pet_name = bot.session.get("pet")
-    if pet_name is None:
-        return False
-    problem = bot.session.get("problem")
-    if problem is None:
-        return False
-    city = bot.session.get("city")
-    if city is None:
-        return False
+    city = bot.session.get("city", "Санкт-Петербург")
     match_discrict = disctrict_query.data in vets.get_districts(city)
     return match_discrict
 
 @bot.callback_query_handler(func=match_disctrict_query)
 def select_disctrict(disctrict_query):
     bot.session["discrict"] = disctrict_query.data
-    
-    city = bot.session["city"]
+    city = bot.session.get("city", "Санкт-Петербург")
     district = bot.session["discrict"]
+    
     selected_vets = vets.get_vets(city, district)
-
     msg = "\n\n".join(map(str, selected_vets))
     msg = f"*{district} район.* Список клиник:\n\n{msg}"
     bot.send_message(disctrict_query.message.chat.id, msg, parse_mode= 'Markdown')
