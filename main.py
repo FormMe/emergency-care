@@ -6,11 +6,13 @@ from telebot import apihelper, types
 
 import config
 from messages import Messages
+from vets import Vets
 
 apihelper.ENABLE_MIDDLEWARE = True
 bot = telebot.TeleBot(config.TOKEN)
 
 messages = Messages("data/messages.json")
+vets = Vets("data/vets.json")
 
 sessions = dict()
 
@@ -67,14 +69,15 @@ def select_pet(pet_query):
 
 
 def match_problem_query(problem_query):
-    pet_name = bot.session["pet"]
-    pet_selected = pet_name is not None
+    pet_name = bot.session.get("pet")
+    if pet_name is None:
+        return False
     match_problem = problem_query.data in messages.emergency[pet_name].problems
-    return pet_selected and match_problem
+    return match_problem
 
 @bot.callback_query_handler(func=match_problem_query)
-def select_problem(query):
-    bot.session["problem"] = query.data
+def select_problem(problem_query):
+    bot.session["problem"] = problem_query.data
     selected_pet = bot.session["pet"]
     selected_problem = bot.session["problem"]
     problem = messages.emergency[selected_pet][selected_problem]
@@ -83,7 +86,57 @@ def select_problem(query):
     else:
         msg = "Problem not found"
     
-    bot.send_message(query.message.chat.id, msg)
+    bot.send_message(problem_query.message.chat.id, msg)
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton(text="Выбрать клинику в своем районе", callback_data="select_vet"))
+    bot.send_message(problem_query.message.chat.id, "Главное сейчас - действовать оперативно и спокойно!", reply_markup=markup)
+
+
+def match_vet_query(vet_query):
+    pet_name = bot.session.get("pet")
+    if pet_name is None:
+        return False
+    problem = bot.session.get("problem")
+    if problem is None:
+        return False
+    list_districts = vet_query.data == "select_vet"
+    return list_districts
+
+@bot.callback_query_handler(func=match_vet_query)
+def select_vet(vet_query):
+    bot.session["city"] = "Санкт-Петербург"
+    markup = types.InlineKeyboardMarkup()
+    for district in vets.get_districts(bot.session["city"]):
+        item = types.InlineKeyboardButton(text=district, callback_data=district)
+        markup.add(item)
+    bot.send_message(vet_query.message.chat.id, "Чтобы мы могли найти список ближайших ветклиник, выбери, пожалуйста, свой район", reply_markup=markup)
+
+
+def match_disctrict_query(disctrict_query):
+    pet_name = bot.session.get("pet")
+    if pet_name is None:
+        return False
+    problem = bot.session.get("problem")
+    if problem is None:
+        return False
+    city = bot.session.get("city")
+    if city is None:
+        return False
+    match_discrict = disctrict_query.data in vets.get_districts(city)
+    return match_discrict
+
+@bot.callback_query_handler(func=match_disctrict_query)
+def select_disctrict(disctrict_query):
+    bot.session["discrict"] = disctrict_query.data
+    
+    city = bot.session["city"]
+    district = bot.session["discrict"]
+    selected_vets = vets.get_vets(city, district)
+
+    msg = "\n\n".join(map(str, selected_vets))
+    msg = f"*{district} район.* Список клиник:\n\n{msg}"
+    bot.send_message(disctrict_query.message.chat.id, msg, parse_mode= 'Markdown')
 
 
 bot.polling(none_stop=True)

@@ -22,6 +22,7 @@
     "commands": {
         "greeting": "greeting.txt",
         "emergency_select": "emergency_select.txt",
-        "pet_select": "pet_select.txt"
+        "pet_select": "pet_select.txt",
+        "vet_select": "vet_select.txt"
     }
 }
