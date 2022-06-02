@@ -4,8 +4,16 @@
             "name": "Кошка 🐱",
             "problems": {
                 "bite": {
-                    "title": "Покусали",
+                    "title": "Покусали 🙀",
                     "msg": "bite.txt"
+                },
+                "fracture": {
+                    "title": "Перелом 🦴",
+                    "msg": "fracture.txt"
+                },
+                "burn": {
+                    "title": "Ожог ⛑",
+                    "msg": "burn.txt"
                 }
             }
         },
