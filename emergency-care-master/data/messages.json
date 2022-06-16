@@ -1,0 +1,40 @@
+{
+    "emergency": {
+        "cat": {
+            "name": "Кошка 🐱",
+            "problems": {
+                "bite": {
+                    "title": "Покусали 🙀",
+                    "msg": "bite.txt"
+                },
+		"kill": {
+                    "title": "kill 🙀",
+                    "msg": "kill.txt"
+                },
+                "fracture": {
+                    "title": "Перелом 🦴",
+                    "msg": "fracture.txt"
+                },
+                "burn": {
+                    "title": "Ожог ⛑",
+                    "msg": "burn.txt"
+                }
+            }
+        },
+        "dog": {
+            "name": "Собака 🐶",
+            "problems": {
+                "bite": {
+                    "title": "Покусали",
+                    "msg": "bite.txt"
+                }
+            }
+        }
+    },
+    "commands": {
+        "greeting": "greeting.txt",
+        "emergency_select": "emergency_select.txt",
+        "pet_select": "pet_select.txt",
+        "vet_select": "vet_select.txt"
+    }
+}
